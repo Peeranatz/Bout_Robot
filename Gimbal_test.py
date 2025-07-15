@@ -35,16 +35,16 @@ if __name__ == '__main__':
     # หมุนไปทางซ้ายทีละ step จนถึงซ้ายสุด
     for yaw in range(0, yaw_left - 1, -step):
         ep_gimbal.moveto(pitch=pitch_val, yaw=yaw).wait_for_completed()
-        time.sleep(0.1)
+        
 
     # หมุนกลับมาตรงกลาง
     ep_gimbal.moveto(pitch=pitch_val, yaw=0).wait_for_completed()
-    time.sleep(0.5)
+    
 
     # หมุนไปทางขวาทีละ step จนถึงขวาสุด
     for yaw in range(0, yaw_right + 1, step):
         ep_gimbal.moveto(pitch=pitch_val, yaw=yaw).wait_for_completed()
-        time.sleep(0.1)
+        
 
     # หมุนกลับมาตรงกลาง
     ep_gimbal.moveto(pitch=pitch_val, yaw=0).wait_for_completed()

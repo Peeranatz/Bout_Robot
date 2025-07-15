@@ -48,7 +48,7 @@ if __name__ == '__main__':
         pitch_angle, yaw_angle = latest_angle[0], latest_angle[1]
         distance = latest_distance[0]
         data.append((pitch_angle, yaw_angle, distance))
-        print(f"Pitch: {pitch_angle}, Yaw: {yaw_angle}, Distance: {distance}")
+        print(f"Pitch: {pitch_angle}, Yaw: {yaw_angle}, Distance: {distance + 79}")
 
     # หมุนกลับมาตรงกลาง (ไม่เก็บค่า)
     ep_gimbal.moveto(pitch=pitch_val, yaw=0).wait_for_completed()
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         pitch_angle, yaw_angle = latest_angle[0], latest_angle[1]
         distance = latest_distance[0]
         data.append((pitch_angle, yaw_angle, distance))
-        print(f"Pitch: {pitch_angle}, Yaw: {yaw_angle}, Distance: {distance}")
+        print(f"Pitch: {pitch_angle}, Yaw: {yaw_angle}, Distance: {distance + 79}")
 
     # หมุนกลับมาตรงกลาง (ไม่เก็บค่า)
     ep_gimbal.moveto(pitch=pitch_val, yaw=0).wait_for_completed()
