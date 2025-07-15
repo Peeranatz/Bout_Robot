@@ -47,7 +47,7 @@ if __name__ == '__main__':
         time.sleep(0.1)
         pitch_angle, yaw_angle = latest_angle[0], latest_angle[1]
         distance = latest_distance[0]
-        data.append((pitch_angle, yaw_angle, distance))
+        data.append((pitch_angle, yaw_angle, distance + 79))  # +79 เพื่อปรับค่าระยะ TOF
         print(f"Pitch: {pitch_angle}, Yaw: {yaw_angle}, Distance: {distance + 79}")
 
     # หมุนกลับมาตรงกลาง (ไม่เก็บค่า)
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         time.sleep(0.1)
         pitch_angle, yaw_angle = latest_angle[0], latest_angle[1]
         distance = latest_distance[0]
-        data.append((pitch_angle, yaw_angle, distance))
+        data.append((pitch_angle, yaw_angle, distance + 79))  # +79 เพื่อปรับค่าระยะ TOF
         print(f"Pitch: {pitch_angle}, Yaw: {yaw_angle}, Distance: {distance + 79}")
 
     # หมุนกลับมาตรงกลาง (ไม่เก็บค่า)
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     ep_robot.close()
 
     # บันทึกข้อมูลลงไฟล์ (csv)
-    with open("gimbal_tof_angle_data.csv", "w") as f:
+    with open("gimbal_tof_angle_data_2.csv", "w") as f:
         f.write("pitch_angle,yaw_angle,distance\n")
         for pitch_angle, yaw_angle, distance in data:
             f.write(f"{pitch_angle},{yaw_angle},{distance}\n")
