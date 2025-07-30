@@ -13,7 +13,7 @@ TARGET_DISTANCE = 2.0
 TOLERANCE = 0.02
 movement_completed = False
 kp = 1.0  # ลดค่า kp ให้เหมาะกับการควบคุมความเร็ว
-kd = 0.2  # เพิ่มค่า kd เพื่อลด overshoot
+kd = 1.2  # เพิ่มค่า kd เพื่อลด overshoot
 e = 2.0
 
 # ตัวแปรสำหรับ PD Controller
@@ -139,13 +139,13 @@ if __name__ == "__main__":
 
     # บันทึกลง CSV
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(current_dir, "status.csv")
+    csv_path = os.path.join(current_dir, "pd_xposition12.csv")
     pd_csv_path = os.path.join(current_dir, "pd_controller.csv")
 
     # บันทึกข้อมูลการเคลื่อนที่
     with open(csv_path, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["time_elapsed_sec", "distance_traveled", "error"])
+        writer.writerow(["timestamp", "distance"])
         for row in position_log:
             writer.writerow(row)
 
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     # บันทึกข้อมูลการเคลื่อนที่หลัก (ตอนนี้คือ PD Controller)
     with open(csv_path, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["time_elapsed_sec", "distance_traveled", "error"])
+        writer.writerow(["time_elapsed_sec", "distance_traveled"])
         for row in position_log:
             writer.writerow(row)
 
