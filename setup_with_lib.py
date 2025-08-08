@@ -30,10 +30,18 @@ class PID:
         self._prev_error = 0.0
         self._last_time = None
 
+        # เก็บค่า PID components ล่าสุด
+        self.last_p = 0.0
+        self.last_i = 0.0
+        self.last_d = 0.0
+
     def reset(self):
         self._integral = 0.0
         self._prev_error = 0.0
         self._last_time = None
+        self.last_p = 0.0
+        self.last_i = 0.0
+        self.last_d = 0.0
 
     def update(self, current_value):
         error = self.setpoint - current_value
@@ -51,12 +59,16 @@ class PID:
         self._integral += error * delta_time
         self._prev_error = error
 
-        output = (self.Kp * error) + (self.Ki * self._integral) + (self.Kd * derivative)
+        self.last_p = self.Kp * error
+        self.last_i = self.Ki * self._integral
+        self.last_d = self.Kd * derivative
+
+        output = self.last_p + self.last_i + self.last_d
         return output
 
 # ==================== Global Variables ====================
 detected_markers = []
-mission_sequence = ['1', '4', '5', '4', '1']
+mission_sequence = ['1', '2', '3', '2', '1']
 mission_index = 0
 mission_stopped = False
 
@@ -144,10 +156,17 @@ if __name__ == '__main__':
     ep_blaster = ep_robot.blaster
     ep_led = ep_robot.led
 
-    # สร้างไฟล์ CSV สำหรับบันทึกข้อมูล yaw, pitch, timestamp
-    log_file = open('gimbal_log_fire_marker.csv', 'w', newline='', encoding='utf-8')
+    # สร้างไฟล์ CSV สำหรับบันทึกข้อมูลทั้งหมด
+    log_file = open('gimbal.csv', 'w', newline='', encoding='utf-8')
     csv_writer = csv.writer(log_file)
-    csv_writer.writerow(['Timestamp', 'YawSpeed', 'PitchSpeed'])
+    csv_writer.writerow([
+        'Timestamp',
+        'Error_Yaw', 'Error_Pitch',
+        'P_Yaw', 'I_Yaw', 'D_Yaw',
+        'Speed_Yaw',
+        'P_Pitch', 'I_Pitch', 'D_Pitch',
+        'Speed_Pitch'
+    ])
 
     # ตั้งไฟเริ่มต้นเป็นสีน้ำเงิน (โหมดค้นหา)
     try:
@@ -283,6 +302,12 @@ if __name__ == '__main__':
                         time.sleep(0.05)
                         continue
 
+                    timestamp_now = time.time()
+                    # คำนวณ error
+                    error_yaw = pid_yaw.setpoint - target_marker.x
+                    error_pitch = pid_pitch.setpoint - target_marker.y
+
+                    # PID update
                     yaw_output = -pid_yaw.update(target_marker.x)
                     pitch_output = pid_pitch.update(target_marker.y)
 
@@ -290,12 +315,20 @@ if __name__ == '__main__':
                     yaw_speed_cmd = max(-max_speed, min(max_speed, yaw_output))
                     pitch_speed_cmd = max(-max_speed, min(max_speed, pitch_output))
 
-                    # บันทึกข้อมูล yaw, pitch และ timestamp ลง CSV
-                    csv_writer.writerow([time.time(), yaw_speed_cmd, pitch_speed_cmd])
-
-                    error_yaw = abs(pid_yaw.setpoint - target_marker.x)
-                    error_pitch = abs(pid_pitch.setpoint - target_marker.y)
-                    tolerance = 0.02
+                    # บันทึกข้อมูล PID ทั้งหมดในไฟล์ gimbal.csv
+                    csv_writer.writerow([
+                        timestamp_now,
+                        error_yaw,
+                        error_pitch,
+                        pid_yaw.last_p,
+                        pid_yaw.last_i,
+                        pid_yaw.last_d,
+                        yaw_speed_cmd,
+                        pid_pitch.last_p,
+                        pid_pitch.last_i,
+                        pid_pitch.last_d,
+                        pitch_speed_cmd
+                    ])
 
                     try:
                         ep_gimbal.drive_speed(yaw_speed=yaw_speed_cmd, pitch_speed=pitch_speed_cmd)
@@ -314,7 +347,8 @@ if __name__ == '__main__':
                         mission_stopped = True
                         break
 
-                    if error_yaw < tolerance and error_pitch < tolerance:
+                    tolerance = 0.02
+                    if abs(error_yaw) < tolerance and abs(error_pitch) < tolerance:
                         print("[Mission] เล็งตรงเป้าเรียบร้อย!")
                         break
                     time.sleep(0.02)
